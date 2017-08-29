@@ -44,3 +44,6 @@ class SchemaTestCase(TestCase):
 
         assert not result.errors
         assert json.loads(prettified_data) == expected
+
+    def test_mutations_page(self):
+        pass

@@ -7,17 +7,34 @@ from graphene_django.types import DjangoObjectType
 
 import logging
 
+logger = logging.getLogger(__name__)
+
 
 class PageNode(DjangoObjectType):
     class Meta:
         model = PageModel
         interfaces = (graphene.relay.Node, )
-        # filter_fields = ['name', 'url', 'position', 'visible']
+        filter_fields = ['name', 'url', 'position', 'visible']
 
     @classmethod
     def get_node(cls, id, context, info):
         node = get_page(id)
         return node
+
+    @classmethod
+    def get_connection(cls):
+        class CountableConnection(graphene.relay.Connection):
+            total_count = graphene.Int()
+
+            class Meta:
+                name = '{}Connection'.format(cls._meta.name)
+                node = cls
+
+            @staticmethod  # Redundant since Graphene kinda does this automatically for all resolve_ methods.
+            def resolve_total_count(root, args, context, info):
+                return root.length
+
+        return CountableConnection
 
 
 class MenuNode(DjangoObjectType):
@@ -34,19 +51,33 @@ class MenuNode(DjangoObjectType):
         node = get_menu(id)
         return node
 
+    @classmethod
+    def get_connection(cls):
+        class CountableConnection(graphene.relay.Connection):
+            total_count = graphene.Int()
+
+            class Meta:
+                name = '{}Connection'.format(cls._meta.name)
+                node = cls
+
+            @staticmethod  # Redundant since Graphene kinda does this automatically for all resolve_ methods.
+            def resolve_total_count(root, args, context, info):
+                return root.length
+
+        return CountableConnection
+
 
 class Query(graphene.AbstractType):
-    page = graphene.Field(PageNode)
+    page = DjangoFilterConnectionField(PageNode)
     pages = DjangoFilterConnectionField(PageNode)
     menu = DjangoFilterConnectionField(MenuNode)
     menus = DjangoFilterConnectionField(MenuNode)
 
-    @graphene.resolve_only_args
-    def resolve_menus(self):
+    def resolve_menus(self, args, context, info):
         return menus()
 
-    @graphene.resolve_only_args
-    def resolve_pages(self):
+    def resolve_pages(self, args, context, info):
+        logger.error(args)
         return pages()
 
 
