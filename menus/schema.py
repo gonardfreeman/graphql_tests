@@ -5,6 +5,8 @@ from graphene_django.debug import DjangoDebug
 from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.types import DjangoObjectType
 
+import logging
+
 
 class PageNode(DjangoObjectType):
     class Meta:
@@ -13,23 +15,21 @@ class PageNode(DjangoObjectType):
         # filter_fields = ['name', 'url', 'position', 'visible']
 
     @classmethod
-    def get_node(cls, id, context, info, _id):
-        print(id)
-        node = get_page(_id)
+    def get_node(cls, id, context, info):
+        node = get_page(id)
         return node
 
 
 class MenuNode(DjangoObjectType):
     class Meta:
         model = MenuModel
-        interfaces = (graphene.Node, )
+        interfaces = (graphene.relay.Node, )
         # filter_fields = {
         #     'page_id': ['exact'],
         #     'menu__name': ['istartswith', 'exact', 'icontains']
         # }
     @classmethod
     def get_node(cls, id, context, info):
-        print(id)
         node = get_menu(id)
         return node
 
