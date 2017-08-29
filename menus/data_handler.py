@@ -1,6 +1,13 @@
 from .models import PageModel, MenuModel
 
 
+def initialize():
+    page = PageModel(name='page_for_tests', url='url_for_tests', position=1, visible=True)
+    page.save()
+    menu = MenuModel(name='menu_for_test', position=1, visible=True, page=page)
+    menu.save()
+
+
 def create_page(name, url, position, visible):
     new_page = PageModel(
         name=name,
