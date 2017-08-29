@@ -28,6 +28,7 @@ class MenuNode(DjangoObjectType):
         #     'page_id': ['exact'],
         #     'menu__name': ['istartswith', 'exact', 'icontains']
         # }
+
     @classmethod
     def get_node(cls, id, context, info):
         node = get_menu(id)
@@ -35,15 +36,10 @@ class MenuNode(DjangoObjectType):
 
 
 class Query(graphene.AbstractType):
-    # menu = graphene.Node.Field(MenuNode)
-    # page = graphene.Node.Field(PageNode)
-    # all_menus = DjangoFilterConnectionField(MenuNode)
-    # all_pages = DjangoFilterConnectionField(PageNode)
     page = graphene.Field(PageNode)
-    pages = graphene.Field(PageNode)
-    node = graphene.relay.Node.Field()
+    pages = DjangoFilterConnectionField(PageNode)
     menu = DjangoFilterConnectionField(MenuNode)
-    menus = graphene.Field(MenuNode)
+    menus = DjangoFilterConnectionField(MenuNode)
 
     @graphene.resolve_only_args
     def resolve_menus(self):
